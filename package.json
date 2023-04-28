@@ -1,0 +1,40 @@
+{
+  "name": "places-ive-been-in",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build-image-paths": "node bin/build-image-paths.js",
+    "dev": "vite",
+    "build": "yarn build-image-paths && tsc && vite build",
+    "lint": "eslint src --ext ts,tsx",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.8",
+    "@emotion/styled": "^11.10.8",
+    "@popperjs/core": "^2.11.7",
+    "pigeon-maps": "^0.21.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-popper": "^2.3.0",
+    "react-slick": "^0.29.0",
+    "react-zoom-pan-pinch": "^3.0.7",
+    "slick-carousel": "^1.8.1",
+    "styled-tools": "^1.7.2",
+    "vite-plugin-svgr": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.2",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-slick": "^0.23.10",
+    "@untile/eslint-config-typescript-react": "^1.0.0",
+    "@untile/prettier-config": "^1.0.2",
+    "@vitejs/plugin-react-swc": "^3.0.0",
+    "eslint": "^8.38.0",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.0"
+  }
+}
