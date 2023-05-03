@@ -25,7 +25,7 @@ const Wrapper = styled.div<{ isVisible?: boolean; zIndex: number }>`
   border-radius: 16px;
   color: #fff;
   overflow: hidden;
-  transition: opacity 200ms ease, visibility 200ms ease;
+  transition: opacity 200ms ease, visibility 200ms ease, transform 200ms ease;
   visibility: hidden;
   width: 360px;
   z-index: ${prop('zIndex')};
@@ -48,6 +48,12 @@ const Wrapper = styled.div<{ isVisible?: boolean; zIndex: number }>`
 `;
 
 const Slider = styled(BaseSlider)`
+  .slick-list {
+    aspect-ratio: 4 / 3;
+    height: auto !important;
+    width: 100% !important;
+  }
+
   .slick-arrow {
     z-index: 1;
   }
@@ -62,12 +68,63 @@ const Slider = styled(BaseSlider)`
 
   .slick-dots {
     bottom: 12px !important;
+    padding: 0 8px;
+    width: calc(100% - 16px);
   }
 
-  .slick-list {
-    aspect-ratio: 4 / 3;
-    height: auto !important;
-    width: 100% !important;
+  .dots {
+    bottom: 0;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 12px 8px;
+    position: absolute;
+    width: 100%;
+  }
+
+  .dots > li {
+    height: 12px;
+    width: 12px;
+  }
+
+  .dots > li > button {
+    appearance: none;
+    background: none;
+    border: none;
+    color: transparent;
+    cursor: pointer;
+    height: 100%;
+    padding: 0;
+    position: relative;
+    width: 100%;
+  }
+
+  .dots > li > button > * {
+    display: none;
+  }
+
+  .dots > li > button::before {
+    background-color: #000;
+    border-radius: 50%;
+    bottom: 4px;
+    content: '';
+    left: 4px;
+    opacity: 0.25;
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    transition: opacity 100ms ease;
+  }
+
+  .dots > li > button:hover::before {
+    opacity: 0.5;
+  }
+
+  .dots > li.slick-active > button::before {
+    opacity: 0.75;
   }
 `;
 
@@ -109,6 +166,7 @@ export const Tooltip = ({ isVisible, point, referenceElement }: Props) => {
               autoplay
               autoplaySpeed={5000}
               dots
+              dotsClass={'dots'}
               easing={'ease'}
               infinite
               slidesToScroll={1}
