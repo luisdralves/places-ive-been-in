@@ -1,21 +1,26 @@
 import { useEffect, useRef } from 'react';
 
-export function useAnimationFrame(callback?: ((delta?: number) => void) | false) {
+export function useAnimationFrame(callback?: (delta?: number) => void, isActive?: boolean) {
   const requestRef = useRef<number>();
   const previousTimeRef = useRef<number>();
 
   useEffect(() => {
-    if (!callback) {
+    if (!callback || isActive === false) {
       return;
     }
 
     const animate = (time: number) => {
       if (previousTimeRef.current !== undefined) {
         const deltaTime = time - previousTimeRef.current;
-        callback(deltaTime);
+
+        if(deltaTime > 200) {
+          previousTimeRef.current = time;
+          callback(deltaTime);
+        }
+      } else {
+        previousTimeRef.current = time;
       }
 
-      previousTimeRef.current = time;
       requestRef.current = requestAnimationFrame(animate);
     };
 
@@ -26,5 +31,5 @@ export function useAnimationFrame(callback?: ((delta?: number) => void) | false)
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [callback]);
+  }, [callback, isActive]);
 }

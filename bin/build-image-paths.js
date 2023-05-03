@@ -13,7 +13,7 @@ const citiesWithPics = cityNames.reduce(
     [cityName]: readdirSync(path.join('./public/images', cityName), {
       withFileTypes: true
     })
-      .filter(item => !item.isDirectory())
+      .filter(item => !item.isDirectory() && item.name !== '.directory')
       .map(({ name }) => name)
   }),
   {}

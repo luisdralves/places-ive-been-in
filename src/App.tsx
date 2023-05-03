@@ -5,8 +5,7 @@ import { Point, points } from 'src/core/config/points';
 import { Tooltip } from 'src/components/tooltip';
 import { VirtualElement } from '@popperjs/core';
 import { maptiler } from 'pigeon-maps/providers';
-import { useAnimationFrame } from 'src/core/hooks/use-animation-frame';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 
 const maptilerProvider = maptiler(
@@ -50,7 +49,11 @@ const App = () => {
     setReferenceElement(getVirtualElement(element));
   }, [selectedPoint]);
 
-  useAnimationFrame(isVisible && selectedPoint && updatePopper);
+  useEffect(() => {
+    if(isVisible && selectedPoint) {
+      updatePopper()
+    }
+  }, [isVisible, selectedPoint, updatePopper])
 
   return (
     <Main>
@@ -60,6 +63,8 @@ const App = () => {
         dprs={[1, 2]}
         maxZoom={8}
         minZoom={3}
+        onAnimationStop={updatePopper}
+        onBoundsChanged={updatePopper}
         provider={maptilerProvider}
         zoomSnap={false}
       >
