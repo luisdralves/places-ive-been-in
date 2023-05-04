@@ -1,7 +1,7 @@
 import { readdirSync, writeFileSync } from 'fs';
 import path from 'path';
 
-const cityNames = readdirSync(path.resolve('./public/images'), {
+const cityNames = readdirSync(path.resolve('./public/thumbnails'), {
   withFileTypes: true
 })
   .filter(item => item.isDirectory())
@@ -10,7 +10,7 @@ const cityNames = readdirSync(path.resolve('./public/images'), {
 const citiesWithPics = cityNames.reduce(
   (citiesWithPics, cityName) => ({
     ...citiesWithPics,
-    [cityName]: readdirSync(path.join('./public/images', cityName), {
+    [cityName]: readdirSync(path.join('./public/thumbnails', cityName), {
       withFileTypes: true
     })
       .filter(item => !item.isDirectory() && item.name !== '.directory')
