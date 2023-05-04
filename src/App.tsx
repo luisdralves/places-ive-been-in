@@ -1,100 +1,111 @@
-import { Backdrop } from './components/backdrop';
-import { CustomMarker } from 'src/components/custom-marker';
-import { Map, Marker } from 'pigeon-maps';
-import { Point, points } from 'src/core/config/points';
-import { Tooltip } from 'src/components/tooltip';
-import { VirtualElement } from '@popperjs/core';
-import { maptiler } from 'pigeon-maps/providers';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import styled from '@emotion/styled';
+import { CSSTransition } from 'react-transition-group';
+import { CustomMarker } from './components/custom-marker';
+import { CustomPopup } from './components/custom-popup';
+import { Point, points } from './core/config/points';
+import { latitudeOffsetFromHeight } from './core/utils/coords';
+import { useDelayedState } from './core/hooks/use-delayed-state';
+import { useMemo, useRef, useState } from 'react';
+import Map, { MapRef, NavigationControl } from 'react-map-gl';
 
-const maptilerProvider = maptiler(
-  import.meta.env.VITE_MAPTILER_API_KEY as string,
-  import.meta.env.VITE_MAPTILER_MAP
-);
+const accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+// Const dayTheme = import.meta.env.VITE_MAPBOX_DAY;
+const nightTheme = import.meta.env.VITE_MAPBOX_NIGHT;
 
-const getVirtualElement = (element: HTMLElement) => ({
-  getBoundingClientRect: () => element.getBoundingClientRect()
-});
-
-const Main = styled.main`
-  height: 100vh;
-  overflow: hidden;
-
-  .pigeon-click-block {
-    cursor: initial !important;
-    filter: none !important;
-    pointer-events: initial !important;
-    top: -8px;
-  }
-`;
+const sortedPoints = points.sort((first, second) => second.color - first.color);
 
 const App = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [selectedPoint, selectPoint] = useState<Point>();
-  const markerRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [referenceElement, setReferenceElement] = useState<VirtualElement>();
+  const query = new URLSearchParams(window.location.search);
+  const queryConsumed = useRef(false);
+  const mapRef = useRef<MapRef | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null);
+  const [selectedPoint, selectPoint] = useState<Point | null>(
+    (query.get('city') && points.find(({ name }) => name === query.get('city'))) || null
+  );
 
-  const updatePopper = useCallback(() => {
-    if (!selectedPoint) {
-      return;
+  const delayedPoint = useDelayedState(selectedPoint, { delay: 200 });
+  const safePoint = delayedPoint ?? selectedPoint;
+
+  const getVerticalOffset = () => {
+    if (!mapRef.current) {
+      return 0;
     }
 
-    const element = markerRefs.current[selectedPoint.name];
+    const bounds = mapRef.current.getBounds();
 
-    if (!element) {
-      return;
+    return (bounds.getNorth() - bounds.getSouth()) / 4;
+  };
+
+  const markers = useMemo(
+    () =>
+      sortedPoints.map(point => (
+        <CustomMarker
+          key={point.name}
+          onClick={() => {
+            selectPoint(point);
+            mapRef.current?.easeTo?.({
+              center: [point.lon, point.lat - getVerticalOffset()],
+              duration: 500
+            });
+          }}
+          point={point}
+        />
+      )),
+    []
+  );
+
+  const getInitialSlide = () => {
+    if (queryConsumed.current) {
+      return 0;
     }
 
-    setReferenceElement(getVirtualElement(element));
-  }, [selectedPoint]);
+    queryConsumed.current = true;
 
-  useEffect(() => {
-    if(isVisible && selectedPoint) {
-      updatePopper()
+    try {
+      return Number(query.get('index'));
+    } catch {
+      return 0;
     }
-  }, [isVisible, selectedPoint, updatePopper])
+  };
 
   return (
-    <Main>
-      <Map
-        defaultCenter={[50.879, 4.6997]}
-        defaultZoom={4}
-        dprs={[1, 2]}
-        maxZoom={8}
-        minZoom={3}
-        onAnimationStop={updatePopper}
-        onBoundsChanged={updatePopper}
-        provider={maptilerProvider}
-        zoomSnap={false}
+    <Map
+      initialViewState={{
+        latitude: selectedPoint
+          ? selectedPoint.lat - latitudeOffsetFromHeight(window.innerHeight)
+          : 47,
+        longitude: selectedPoint?.lon ?? 4.7,
+        zoom: 4
+      }}
+      mapStyle={nightTheme}
+      mapboxAccessToken={accessToken}
+      maxZoom={7}
+      projection={'globe'}
+      ref={mapRef}
+      style={{ height: '100vh', width: '100vw' }}
+    >
+      {markers}
+
+      <CSSTransition
+        classNames={'popup'}
+        in={!!selectedPoint && selectedPoint === delayedPoint}
+        nodeRef={popupRef}
+        timeout={200}
+        unmountOnExit
       >
-        <Backdrop onClose={() => setIsVisible(false)} />
+        {safePoint ? (
+          <CustomPopup
+            initialSlide={getInitialSlide()}
+            onClose={() => selectPoint(null)}
+            point={safePoint}
+            ref={popupRef}
+          />
+        ) : (
+          <div />
+        )}
+      </CSSTransition>
 
-        {points
-          .sort((first, second) => second.color - first.color)
-          .map(point => (
-            <Marker
-              anchor={[point.lat, point.lon]}
-              key={point.name}
-            >
-              <CustomMarker
-                markerRefs={markerRefs}
-                onClick={() => {
-                  selectPoint(point);
-                  setIsVisible(true);
-                }}
-                point={point}
-              />
-            </Marker>
-          ))}
-
-        <Tooltip
-          isVisible={isVisible}
-          point={selectedPoint}
-          referenceElement={referenceElement}
-        />
-      </Map>
-    </Main>
+      <NavigationControl position={'top-left'} />
+    </Map>
   );
 };
 

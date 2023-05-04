@@ -1,27 +1,26 @@
+import { Marker } from 'react-map-gl';
 import { ReactComponent as MarkerIcon } from 'src/assets/svg/marker.svg';
-import { MutableRefObject } from 'react';
 import { Point } from 'src/core/config/points';
 import { colors } from 'src/core/config/colors';
 
 type Props = {
-  markerRefs: MutableRefObject<Record<string, HTMLDivElement | null>>;
-  onClick: () => void;
+  onClick?: () => void;
   point: Point;
 };
 
-export const CustomMarker = ({ markerRefs, onClick, point }: Props) => (
-  <div
-    ref={element => {
-      markerRefs.current[point.name] = element;
-    }}
+export const CustomMarker = ({ onClick, point }: Props) => (
+  <Marker
+    anchor={'bottom'}
+    latitude={point.lat}
+    longitude={point.lon}
+    offset={[0, 8]}
+    onClick={onClick}
   >
     <MarkerIcon
       color={colors[point.color]}
       onClick={onClick}
-      style={{
-        cursor: 'pointer'
-      }}
+      style={{ cursor: 'pointer' }}
       width={32}
     />
-  </div>
+  </Marker>
 );

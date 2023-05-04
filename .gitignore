@@ -25,5 +25,6 @@ dist-ssr
 
 # Personal data
 public/images
+public/thumbnails
 src/core/config/image-paths.json
 src/core/config/points.ts

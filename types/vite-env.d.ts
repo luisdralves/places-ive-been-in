@@ -1,8 +1,9 @@
 // / <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_MAPTILER_API_KEY: string;
-  readonly VITE_MAPTILER_MAP: string;
+  readonly VITE_MAPBOX_DAY: string;
+  readonly VITE_MAPBOX_NIGHT: string;
+  readonly VITE_MAPBOX_TOKEN: string;
 }
 
 interface ImportMeta {
