@@ -6,6 +6,7 @@
   "scripts": {
     "build-image-paths": "node bin/build-image-paths.js",
     "optimize-images": "bash bin/optimize-images.sh",
+    "optimize-images:clean": "rm -r ./public/thumbnails && yarn optimize-images",
     "dev": "vite",
     "prebuild": "yarn optimize-images && yarn build-image-paths",
     "build": "tsc && vite build",
