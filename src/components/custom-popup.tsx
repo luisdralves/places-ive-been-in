@@ -2,6 +2,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 import { Popup as BasePopup } from 'react-map-gl';
 import { Point } from 'src/core/config/points';
+import { colors } from 'src/core/config/colors';
 import { forwardRef } from 'react';
 import { useDelayedState } from 'src/core/hooks/use-delayed-state';
 import BaseSlider, { Settings } from 'react-slick';
@@ -14,6 +15,7 @@ type Props = Pick<Settings, 'initialSlide'> & {
 };
 
 const Popup = styled(BasePopup)`
+  z-index: ${colors.length +1};
   .mapboxgl-popup-tip {
     display: none;
   }

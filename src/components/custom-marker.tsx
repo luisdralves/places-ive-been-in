@@ -15,6 +15,7 @@ export const CustomMarker = ({ onClick, point }: Props) => (
     longitude={point.lon}
     offset={[0, 8]}
     onClick={onClick}
+    style={{zIndex:colors.length - point.color}}
   >
     <MarkerIcon
       color={colors[point.color]}

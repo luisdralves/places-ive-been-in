@@ -11,8 +11,6 @@ const accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 // Const dayTheme = import.meta.env.VITE_MAPBOX_DAY;
 const nightTheme = import.meta.env.VITE_MAPBOX_NIGHT;
 
-const sortedPoints = points.sort((first, second) => second.color - first.color);
-
 const App = () => {
   const query = new URLSearchParams(window.location.search);
   const queryConsumed = useRef(false);
@@ -37,7 +35,7 @@ const App = () => {
 
   const markers = useMemo(
     () =>
-      sortedPoints.map(point => (
+      points.map(point => (
         <CustomMarker
           key={point.name}
           onClick={() => {
