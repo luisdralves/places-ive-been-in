@@ -16,7 +16,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
-    "@fontsource/raleway": "^4.5.12",
+    "@fontsource/josefin-sans": "^4.5.12",
     "mapbox-gl": "^2.14.1",
     "maplibre-gl": "^2.4.0",
     "react": "^18.2.0",
