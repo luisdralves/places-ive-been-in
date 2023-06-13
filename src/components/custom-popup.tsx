@@ -2,6 +2,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 import { Popup as BasePopup } from 'react-map-gl';
 import { Point } from 'src/core/config/points';
+import { Timeline } from './timeline';
 import { colors } from 'src/core/config/colors';
 import { forwardRef } from 'react';
 import { useDelayedState } from 'src/core/hooks/use-delayed-state';
@@ -15,7 +16,7 @@ type Props = Pick<Settings, 'initialSlide'> & {
 };
 
 const Popup = styled(BasePopup)`
-  z-index: ${colors.length +1};
+  z-index: ${colors.length + 1};
   .mapboxgl-popup-tip {
     display: none;
   }
@@ -62,7 +63,6 @@ const Content = styled.div`
   border: solid 2px black;
   border-radius: 16px;
   color: #ffffff;
-  overflow: hidden;
   width: 360px;
 
   & > *:not(:first-child) {
@@ -75,6 +75,10 @@ const SliderWrapper = styled.div`
 `;
 
 const Slider = styled(BaseSlider)`
+  border-bottom-right-radius: 16px;
+  border-bottom-left-radius: 16px;
+  overflow: hidden;
+
   .slick-list {
     aspect-ratio: 4 / 3;
     height: auto !important;
@@ -197,14 +201,7 @@ export const CustomPopup = forwardRef<HTMLDivElement, Props>(
             <CloseButton onClick={onClose}>{'\u00d7'}</CloseButton>
           </Name>
 
-          {point?.dates && (
-            <div>
-              {point?.dates?.map(dateSpan => (
-                // eslint-disable-next-line react/jsx-key
-                <p>{dateSpan.join(' -> ')}</p>
-              ))}
-            </div>
-          )}
+          {point?.dates && <Timeline dates={point.dates} />}
 
           {imagesKey && imagePaths[imagesKey] && (
             <SliderWrapper>
