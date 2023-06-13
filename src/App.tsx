@@ -1,11 +1,12 @@
 import { CSSTransition } from 'react-transition-group';
 import { CustomMarker } from './components/custom-marker';
 import { CustomPopup } from './components/custom-popup';
-import { Point, points } from './core/config/points';
+import { Point } from 'types/point';
 import { latitudeOffsetFromHeight } from './core/utils/coords';
+import { points } from './core/config/points';
 import { useDelayedState } from './core/hooks/use-delayed-state';
 import { useMemo, useRef, useState } from 'react';
-import Map, { MapRef, NavigationControl } from 'react-map-gl';
+import MapGL, { MapRef, NavigationControl } from 'react-map-gl';
 
 const accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 // Const dayTheme = import.meta.env.VITE_MAPBOX_DAY;
@@ -49,7 +50,7 @@ const App = () => {
           point={point}
         />
       )),
-    []
+    [getVerticalOffset]
   );
 
   const getInitialSlide = () => {
@@ -67,7 +68,7 @@ const App = () => {
   };
 
   return (
-    <Map
+    <MapGL
       initialViewState={{
         latitude: selectedPoint
           ? selectedPoint.lat - latitudeOffsetFromHeight(window.innerHeight)
@@ -78,7 +79,7 @@ const App = () => {
       mapStyle={nightTheme}
       mapboxAccessToken={accessToken}
       maxZoom={7}
-      projection={'globe'}
+      projection={{ name: 'globe' }}
       ref={mapRef}
       style={{ height: '100vh', width: '100vw' }}
     >
@@ -107,7 +108,7 @@ const App = () => {
       </CSSTransition>
 
       <NavigationControl position={'top-left'} />
-    </Map>
+    </MapGL>
   );
 };
 

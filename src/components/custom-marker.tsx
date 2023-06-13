@@ -1,6 +1,6 @@
 import { Marker } from 'react-map-gl';
 import { ReactComponent as MarkerIcon } from 'src/assets/svg/marker.svg';
-import { Point } from 'src/core/config/points';
+import { Point } from 'types/point';
 import { colors } from 'src/core/config/colors';
 import { getColor } from 'src/core/utils/dates';
 import { useMemo } from 'react';

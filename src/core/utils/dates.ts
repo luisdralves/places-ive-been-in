@@ -22,7 +22,7 @@ export const getColor = (dates: [string, string?][] = []) => {
     return colors[1];
   }
 
-  if (totalTime > 24 * 60 * 60 * 1000) {
+  if (totalTime > 2 * 24 * 60 * 60 * 1000) {
     return colors[2];
   }
 

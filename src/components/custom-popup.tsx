@@ -1,7 +1,7 @@
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 import { Popup as BasePopup } from 'react-map-gl';
-import { Point } from 'src/core/config/points';
+import { Point } from 'types/point';
 import { Timeline } from './timeline';
 import { colors } from 'src/core/config/colors';
 import { forwardRef } from 'react';
