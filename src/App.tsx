@@ -17,7 +17,7 @@ const App = () => {
   const mapRef = useRef<MapRef | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [selectedPoint, selectPoint] = useState<Point | null>(
-    (query.get('city') && points.find(({ name }) => name === query.get('city'))) || null
+    (query.get('place') && points.find(({ name }) => name === query.get('place'))) || null
   );
 
   const delayedPoint = useDelayedState(selectedPoint, { delay: 200 });
@@ -40,6 +40,7 @@ const App = () => {
           key={point.name}
           onClick={() => {
             selectPoint(point);
+            history.pushState(null, '', `?place=${point.name}`);
             mapRef.current?.easeTo?.({
               center: [point.lon, point.lat - getVerticalOffset()],
               duration: 500
@@ -93,7 +94,10 @@ const App = () => {
         {safePoint ? (
           <CustomPopup
             initialSlide={getInitialSlide()}
-            onClose={() => selectPoint(null)}
+            onClose={() => {
+              selectPoint(null);
+              history.pushState(null, '', '/');
+            }}
             point={safePoint}
             ref={popupRef}
           />
