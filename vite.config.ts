@@ -8,7 +8,8 @@ export default defineConfig({
   plugins: [svgr(), react()],
   resolve: {
     alias: {
-      src: path.resolve('./src')
+      src: path.resolve('./src'),
+      types: path.resolve('./types')
     }
   }
 });
