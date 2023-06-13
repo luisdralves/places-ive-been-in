@@ -1,8 +1,9 @@
 import { CSSTransition } from 'react-transition-group';
 import { CustomMarker } from './components/custom-marker';
 import { CustomPopup } from './components/custom-popup';
-import { Point, points } from './core/config/points';
+import { Point } from 'types/point';
 import { latitudeOffsetFromHeight } from './core/utils/coords';
+import { points } from './core/config/points';
 import { useDelayedState } from './core/hooks/use-delayed-state';
 import { useMemo, useRef, useState } from 'react';
 import Map, { MapRef, NavigationControl } from 'react-map-gl';

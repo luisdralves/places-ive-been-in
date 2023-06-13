@@ -19,7 +19,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "paths": { "src/*": ["./src/*"] }
+    "paths": {
+      "src/*": ["./src/*"],
+      "types/*": ["./types/*"]
+    }
   },
   "include": ["src", "types"],
   "exclude": ["node_modules"],
