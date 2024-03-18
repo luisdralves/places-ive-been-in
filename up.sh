@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-cd /mnt/bigdisk/home/miguel/Documents/projects/react/places-ive-been-in
-yarn build
-yarn preview --host
+cd /mnt/important/home/miguel/Documents/projects/react/places-ive-been-in
+bun run build
+bun preview --host
