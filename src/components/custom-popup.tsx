@@ -132,12 +132,12 @@ export const CustomPopup = forwardRef<HTMLDivElement, Props>(
                 <Carousel autoplay autoplaySpeed={5000} initialSlide={initialSlide}>
                   {imagePaths[imagesKey].map(image => (
                     <a
-                      href={`/images/${point.name}/${image}`}
-                      key={image}
+                      href={`/images/${point.name}/${image.original}`}
+                      key={image.thumbnail}
                       rel={'noreferrer'}
                       target={'_blank'}
                     >
-                      <Image src={`/thumbnails/${point.name}/${image}`} />
+                      <Image src={`/thumbnails/${point.name}/${image.thumbnail}`} />
                     </a>
                   ))}
                 </Carousel>

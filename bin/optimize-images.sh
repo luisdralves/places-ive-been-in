@@ -2,7 +2,7 @@
 
 cd ./public/images
 find . -type d -exec bash -c '[ ! -d "../thumbnails/${0:2}" ] && echo "creating ${0}" && mkdir "../thumbnails/${0:2}"' {} \;
-find . -type f \( ! -iname ".*" \) -exec bash -c 'base="${0:2}"; [ ! -f "../thumbnails/${base}" ] && echo "converting ${0}" && magick "$0" -resize 600 "../thumbnails/${base%.*}.webp"' {} \;
+find . -type f \( ! -iname ".*" \) -exec bash -c 'base="${0:2}"; webp="../thumbnails/${base%.*}.webp"; [ ! -f "$webp" ] && echo "converting ${0}" && magick "$0" -resize 600 "$webp"' {} \;
 
 cd ../thumbnails
 find . -type d -exec bash -c '[ ! -d "../images/${0:2}" ] && echo "removing ${0}" && rm -r "${0}"' {} \;
