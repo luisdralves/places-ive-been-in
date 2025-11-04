@@ -4,8 +4,8 @@ import { CustomPopup } from './components/custom-popup';
 import { Point } from 'types/point';
 import { latitudeOffsetFromHeight } from './core/utils/coords';
 import { points } from './core/config/points';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useDelayedState } from './core/hooks/use-delayed-state';
-import { useMemo, useRef, useState } from 'react';
 import MapGL, { MapRef, NavigationControl } from 'react-map-gl';
 
 const accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -24,7 +24,7 @@ const App = () => {
   const delayedPoint = useDelayedState(selectedPoint, { delay: 200 });
   const safePoint = delayedPoint ?? selectedPoint;
 
-  const getVerticalOffset = () => {
+  const getVerticalOffset = useCallback(() => {
     if (!mapRef.current) {
       return 0;
     }
@@ -32,7 +32,7 @@ const App = () => {
     const bounds = mapRef.current.getBounds();
 
     return (bounds.getNorth() - bounds.getSouth()) / 4;
-  };
+  }, []);
 
   const markers = useMemo(
     () =>
