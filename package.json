@@ -6,9 +6,9 @@
   "scripts": {
     "build-image-paths": "node bin/build-image-paths.js",
     "optimize-images": "bash bin/optimize-images.sh",
-    "optimize-images:clean": "rm -r ./public/thumbnails && yarn optimize-images",
+    "optimize-images:clean": "rm -r ./public/thumbnails && bun optimize-images",
     "dev": "vite",
-    "prebuild": "yarn optimize-images && yarn build-image-paths",
+    "prebuild": "bun optimize-images && bun build-image-paths",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx",
     "lint:styles": "stylelint './src/**/*.tsx'",

@@ -11,5 +11,8 @@ export default defineConfig({
       src: path.resolve('./src'),
       types: path.resolve('./types')
     }
+  },
+  build: {
+    copyPublicDir: false
   }
 });

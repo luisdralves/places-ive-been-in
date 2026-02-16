@@ -1,36 +1,23 @@
 import { readdirSync, writeFileSync } from 'fs';
 import path from 'path';
 
-const cityNames = readdirSync(path.resolve('./public/thumbnails'), {
+const cityNames = readdirSync(path.resolve('./public/images'), {
   withFileTypes: true
 })
   .filter(item => item.isDirectory())
   .map(({ name }) => name);
 
-// Helper to find original file with any extension
-const findOriginalFile = (cityName, thumbnailName) => {
-  const baseName = thumbnailName.replace(/\.webp$/i, '');
-  const imagesDir = path.join('./public/images', cityName);
-  const imagesFiles = readdirSync(imagesDir);
-
-  const originalFile = imagesFiles.find(file => {
-    const fileBaseName = file.replace(/\.[^.]+$/, '');
-    return fileBaseName === baseName;
-  });
-
-  return originalFile || thumbnailName;
-};
-
 const citiesWithPics = cityNames.reduce(
   (citiesWithPics, cityName) => ({
     ...citiesWithPics,
-    [cityName]: readdirSync(path.join('./public/thumbnails', cityName), {
+    [cityName]: readdirSync(path.join('./public/images', cityName), {
       withFileTypes: true
     })
       .filter(item => !item.isDirectory() && item.name !== '.directory')
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map(({ name }) => ({
-        thumbnail: name,
-        original: findOriginalFile(cityName, name)
+        thumbnail: name.replace(/\.\w+$/i, '.webp'),
+        original: name
       }))
   }),
   {}

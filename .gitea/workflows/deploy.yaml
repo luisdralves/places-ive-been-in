@@ -1,0 +1,60 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: oven/bun:latest
+      volumes:
+        - /var/www/places-ive-been-in:/deploy
+    steps:
+      - name: Install dependencies (system)
+        run: |
+          apt-get update
+          apt-get install -y imagemagick
+
+      - uses: actions/checkout@v4
+
+      - name: Copy checkout to mounted volume
+        run: |
+          rm -rf /deploy/build
+          cp -r . /deploy/build
+
+      - name: Hard link persistent data into checkout
+        working-directory: /deploy/build
+        run: |
+          cp -rl /deploy/persist/images public/images
+          cp -rl /deploy/persist/thumbnails public/thumbnails
+          cp /deploy/persist/points.ts src/core/config/points.ts
+          cp /deploy/persist/.env.local .env.local
+
+      - name: Install dependencies
+        working-directory: /deploy/build
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        working-directory: /deploy/build
+        run: bun run build
+
+      - name: Sync thumbnails to persistent storage
+        working-directory: /deploy/build
+        run: |
+          rm -rf /deploy/persist/thumbnails
+          cp -rl public/thumbnails /deploy/persist/thumbnails
+
+      - name: Deploy
+        working-directory: /deploy/build
+        run: |
+          rm -rf /deploy/public
+          mv dist /deploy/public
+          cp public/earth.svg /deploy/public/
+          cp -rl /deploy/persist/images /deploy/public/images
+          cp -rl /deploy/persist/thumbnails /deploy/public/thumbnails
+
+      - name: Cleanup
+        run: rm -rf /deploy/build
