@@ -1,10 +1,11 @@
 import { CSSTransition } from 'react-transition-group';
-import { CustomMarker } from './components/custom-marker';
 import { CustomPopup } from './components/custom-popup';
+import { type Map as MapboxMap } from 'mapbox-gl';
+import { PinsLayer } from './components/pins-layer';
 import { Point } from 'types/point';
 import { latitudeOffsetFromHeight } from './core/utils/coords';
 import { points } from './core/config/points';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useDelayedState } from './core/hooks/use-delayed-state';
 import MapGL, { MapRef, NavigationControl } from 'react-map-gl';
 
@@ -17,6 +18,7 @@ const App = () => {
   const queryConsumed = useRef(false);
   const mapRef = useRef<MapRef | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
+  const [mapInstance, setMapInstance] = useState<MapboxMap | null>(null);
   const [selectedPoint, selectPoint] = useState<Point | null>(
     (query.get('place') && points.find(({ name }) => name === query.get('place'))) || null
   );
@@ -34,22 +36,15 @@ const App = () => {
     return (bounds.getNorth() - bounds.getSouth()) / 4;
   }, []);
 
-  const markers = useMemo(
-    () =>
-      points.map(point => (
-        <CustomMarker
-          key={point.name}
-          onClick={() => {
-            selectPoint(point);
-            history.pushState(null, '', `?place=${point.name}`);
-            mapRef.current?.easeTo?.({
-              center: [point.lon, point.lat - getVerticalOffset()],
-              duration: 500
-            });
-          }}
-          point={point}
-        />
-      )),
+  const handleSelectPoint = useCallback(
+    (point: Point) => {
+      selectPoint(point);
+      history.pushState(null, '', `?place=${point.name}`);
+      mapRef.current?.easeTo?.({
+        center: [point.lon, point.lat - getVerticalOffset()],
+        duration: 500
+      });
+    },
     [getVerticalOffset]
   );
 
@@ -79,11 +74,18 @@ const App = () => {
       mapStyle={nightTheme}
       mapboxAccessToken={accessToken}
       maxZoom={7}
+      onLoad={() =>
+        setMapInstance((mapRef.current?.getMap() ?? null) as unknown as MapboxMap | null)
+      }
       projection={{ name: 'globe' }}
       ref={mapRef}
       style={{ height: '100vh', width: '100vw' }}
     >
-      {markers}
+      <PinsLayer
+        map={mapInstance}
+        onSelect={handleSelectPoint}
+        points={points}
+      />
 
       <CSSTransition
         classNames={'popup'}
