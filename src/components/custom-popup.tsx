@@ -1,12 +1,12 @@
-import { Popup as BasePopup } from 'react-map-gl';
-import { Carousel } from './carousel';
-import { Point } from 'types/point';
-import { Timeline } from './timeline';
-import { colors } from 'src/core/config/colors';
-import { forwardRef } from 'react';
-import { useDelayedState } from 'src/core/hooks/use-delayed-state';
-import imagePaths from 'src/core/config/image-paths.json';
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
+import { forwardRef } from "react";
+import { Popup as BasePopup } from "react-map-gl";
+import { colors } from "src/core/config/colors";
+import imagePaths from "src/core/config/image-paths.json";
+import { useDelayedState } from "src/core/hooks/use-delayed-state";
+import type { Point } from "types/point";
+import { Carousel } from "./carousel";
+import { Timeline } from "./timeline";
 
 type Props = {
   initialSlide?: number;
@@ -109,19 +109,19 @@ export const CustomPopup = forwardRef<HTMLDivElement, Props>(
 
     return (
       <Popup
-        anchor={'top'}
+        anchor={"top"}
         closeButton={false}
         closeOnClick={false}
         closeOnMove={false}
         latitude={point.lat}
         longitude={point.lon}
-        maxWidth={'360px'}
+        maxWidth={"360px"}
       >
         <Content ref={ref}>
           <Name>
             {point?.name}
 
-            <CloseButton onClick={onClose}>{'\u00d7'}</CloseButton>
+            <CloseButton onClick={onClose}>{"\u00d7"}</CloseButton>
           </Name>
 
           {point?.dates && <Timeline dates={point.dates} />}
@@ -130,12 +130,12 @@ export const CustomPopup = forwardRef<HTMLDivElement, Props>(
             <CarouselWrapper>
               {delayedImagesKey === imagesKey && (
                 <Carousel autoplay autoplaySpeed={5000} initialSlide={initialSlide}>
-                  {imagePaths[imagesKey].map(image => (
+                  {imagePaths[imagesKey].map((image) => (
                     <a
                       href={`/images/${point.name}/${image.original}`}
                       key={image.thumbnail}
-                      rel={'noreferrer'}
-                      target={'_blank'}
+                      rel={"noreferrer"}
+                      target={"_blank"}
                     >
                       <Image src={`/thumbnails/${point.name}/${image.thumbnail}`} />
                     </a>
@@ -147,7 +147,7 @@ export const CustomPopup = forwardRef<HTMLDivElement, Props>(
         </Content>
       </Popup>
     );
-  }
+  },
 );
 
-CustomPopup.displayName = 'CustomPopup';
+CustomPopup.displayName = "CustomPopup";

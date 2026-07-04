@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 type Options<T> = {
   comparator?: (a: T, b: T) => boolean;

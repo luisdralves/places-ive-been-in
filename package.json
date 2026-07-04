@@ -10,7 +10,8 @@
     "dev": "vite",
     "prebuild": "bun optimize-images && bun build-image-paths",
     "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx",
+    "lint": "biome check",
+    "format": "biome format --write",
     "lint:styles": "stylelint './src/**/*.tsx'",
     "preview": "vite preview"
   },
@@ -29,20 +30,17 @@
     "vite-plugin-svgr": "^2.4.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
     "@types/mapbox-gl": "^3.4.0",
-    "@types/three": "^0.170.0",
     "@types/node": "^18.16.2",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-transition-group": "^4.4.5",
-    "@untile/eslint-config-typescript-react": "^1.0.0",
-    "@untile/prettier-config": "^1.0.2",
+    "@types/three": "^0.170.0",
     "@untile/stylelint-config-react": "1.0.2",
     "@vitejs/plugin-react-swc": "^3.0.0",
-    "eslint": "^8.38.0",
     "postcss": "^8.4.21",
     "postcss-styled-syntax": "^0.4.0",
-    "prettier": "^2.8.7",
     "stylelint": ">=15.3",
     "typescript": "^5.0.2",
     "vite": "^4.3.0"

@@ -1,7 +1,7 @@
-import { formatMonth, getColor } from 'src/core/utils/dates';
-import { prop } from 'styled-tools';
-import { useMemo } from 'react';
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
+import { useMemo } from "react";
+import { formatMonth, getColor } from "src/core/utils/dates";
+import { prop } from "styled-tools";
 
 type Props = {
   dates: [string, string?][];
@@ -32,10 +32,10 @@ const Track = styled.div`
 const Timespan = styled.div<{ color: string; left: number; right: number }>`
   border-radius: 8px;
   height: 8px;
-  background-color: ${prop('color')};
+  background-color: ${prop("color")};
   position: absolute;
-  left: ${prop('left')}%;
-  right: ${prop('right')}%;
+  left: ${prop("left")}%;
+  right: ${prop("right")}%;
   min-width: 8px;
 
   & > div {
@@ -74,7 +74,7 @@ export const Timeline = ({ dates }: Props) => {
       color: getColor(dates),
       firstDate,
       lastDate,
-      total: lastDate.getTime() - firstDate.getTime()
+      total: lastDate.getTime() - firstDate.getTime(),
     };
   }, [dates]);
 
@@ -89,8 +89,8 @@ export const Timeline = ({ dates }: Props) => {
       <div>
         <Track>
           {dates.map(([start, end]) => (
-            // eslint-disable-next-line react/jsx-key
             <Timespan
+              key={`${start}-${end ?? ""}`}
               color={color}
               left={(100 * (new Date(start).getTime() - firstDate.getTime())) / total}
               right={
@@ -99,7 +99,7 @@ export const Timeline = ({ dates }: Props) => {
                 total
               }
             >
-              <div>{`${start}${end ? ` -> ${end}` : ''}`}</div>
+              <div>{`${start}${end ? ` -> ${end}` : ""}`}</div>
             </Timespan>
           ))}
         </Track>

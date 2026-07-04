@@ -1,4 +1,4 @@
-import { colors } from 'src/core/config/colors';
+import { colors } from "src/core/config/colors";
 
 export const getTotalTime = (dates: [string, string?][] = []) => {
   return dates.reduce((total, [start, end]) => {
@@ -30,4 +30,4 @@ export const getColor = (dates: [string, string?][] = []) => {
 };
 
 export const formatMonth = (date: Date) =>
-  `${date.toDateString().split(' ')[1]} ${date.getFullYear()}`;
+  `${date.toDateString().split(" ")[1]} ${date.getFullYear()}`;

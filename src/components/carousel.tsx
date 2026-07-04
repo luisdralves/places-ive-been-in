@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
   autoplay?: boolean;
@@ -104,7 +104,7 @@ const Dot = styled.button<{ active: boolean }>`
     bottom: 4px;
     content: '';
     left: 4px;
-    opacity: ${props => (props.active ? 0.75 : 0.25)};
+    opacity: ${(props) => (props.active ? 0.75 : 0.25)};
     position: absolute;
     right: 4px;
     top: 4px;
@@ -112,7 +112,7 @@ const Dot = styled.button<{ active: boolean }>`
   }
 
   &:hover::before {
-    opacity: ${props => (props.active ? 0.75 : 0.5)};
+    opacity: ${(props) => (props.active ? 0.75 : 0.5)};
   }
 
   &:focus {
@@ -125,7 +125,7 @@ export function Carousel({
   autoplay = false,
   autoplaySpeed = 5000,
   children,
-  initialSlide = 0
+  initialSlide = 0,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialSlide);
@@ -176,9 +176,9 @@ export function Carousel({
       setCurrentIndex(newIndex);
     };
 
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
 
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    return () => scrollContainer.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Handle keyboard navigation
@@ -188,22 +188,22 @@ export function Carousel({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           e.preventDefault();
           goToPrev();
           break;
 
-        case 'ArrowRight':
+        case "ArrowRight":
           e.preventDefault();
           goToNext();
           break;
 
-        case 'Home':
+        case "Home":
           e.preventDefault();
           scrollToIndex(0);
           break;
 
-        case 'End':
+        case "End":
           e.preventDefault();
           scrollToIndex(slideCountRef.current - 1);
           break;
@@ -213,9 +213,9 @@ export function Carousel({
       }
     };
 
-    scrollContainer.addEventListener('keydown', handleKeyDown);
+    scrollContainer.addEventListener("keydown", handleKeyDown);
 
-    return () => scrollContainer.removeEventListener('keydown', handleKeyDown);
+    return () => scrollContainer.removeEventListener("keydown", handleKeyDown);
   }, [goToNext, goToPrev, scrollToIndex]);
 
   // Autoplay functionality
@@ -244,29 +244,28 @@ export function Carousel({
 
   return (
     <CarouselContainer>
-      <ScrollContainer aria-label={'Image carousel'} ref={scrollRef} role={'region'} tabIndex={0}>
-        {children.map((child, index) => (
-          <Slide key={index}>{child}</Slide>
+      <ScrollContainer aria-label={"Image carousel"} ref={scrollRef} role={"region"} tabIndex={0}>
+        {children.map((child) => (
+          <Slide>{child}</Slide>
         ))}
       </ScrollContainer>
 
-      <PrevButton aria-label={'Previous slide'} onClick={goToPrev} type={'button'}>
-        {'‹'}
+      <PrevButton aria-label={"Previous slide"} onClick={goToPrev} type={"button"}>
+        {"‹"}
       </PrevButton>
 
-      <NextButton aria-label={'Next slide'} onClick={goToNext} type={'button'}>
-        {'›'}
+      <NextButton aria-label={"Next slide"} onClick={goToNext} type={"button"}>
+        {"›"}
       </NextButton>
 
       <DotsContainer>
         {children.map((_, index) => (
           <Dot
             active={index === currentIndex}
-            aria-current={index === currentIndex ? 'true' : 'false'}
+            aria-current={index === currentIndex ? "true" : "false"}
             aria-label={`Go to slide ${index + 1}`}
-            key={index}
             onClick={() => scrollToIndex(index)}
-            type={'button'}
+            type={"button"}
           />
         ))}
       </DotsContainer>

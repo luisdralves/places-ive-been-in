@@ -1,13 +1,13 @@
-import { CSSTransition } from 'react-transition-group';
-import { CustomPopup } from './components/custom-popup';
-import { type Map as MapboxMap } from 'mapbox-gl';
-import { PinsLayer } from './components/pins-layer';
-import { Point } from 'types/point';
-import { latitudeOffsetFromHeight } from './core/utils/coords';
-import { points } from './core/config/points';
-import { useCallback, useRef, useState } from 'react';
-import { useDelayedState } from './core/hooks/use-delayed-state';
-import MapGL, { MapRef, NavigationControl } from 'react-map-gl';
+import type { Map as MapboxMap } from "mapbox-gl";
+import { useCallback, useRef, useState } from "react";
+import MapGL, { type MapRef, NavigationControl } from "react-map-gl";
+import { CSSTransition } from "react-transition-group";
+import type { Point } from "types/point";
+import { CustomPopup } from "./components/custom-popup";
+import { PinsLayer } from "./components/pins-layer";
+import { points } from "./core/config/points";
+import { useDelayedState } from "./core/hooks/use-delayed-state";
+import { latitudeOffsetFromHeight } from "./core/utils/coords";
 
 const accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 // Const dayTheme = import.meta.env.VITE_MAPBOX_DAY;
@@ -20,7 +20,7 @@ const App = () => {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [mapInstance, setMapInstance] = useState<MapboxMap | null>(null);
   const [selectedPoint, selectPoint] = useState<Point | null>(
-    (query.get('place') && points.find(({ name }) => name === query.get('place'))) || null
+    (query.get("place") && points.find(({ name }) => name === query.get("place"))) || null,
   );
 
   const delayedPoint = useDelayedState(selectedPoint, { delay: 200 });
@@ -39,13 +39,13 @@ const App = () => {
   const handleSelectPoint = useCallback(
     (point: Point) => {
       selectPoint(point);
-      history.pushState(null, '', `?place=${point.name}`);
+      history.pushState(null, "", `?place=${point.name}`);
       mapRef.current?.easeTo?.({
         center: [point.lon, point.lat - getVerticalOffset()],
-        duration: 500
+        duration: 500,
       });
     },
-    [getVerticalOffset]
+    [getVerticalOffset],
   );
 
   const getInitialSlide = () => {
@@ -56,7 +56,7 @@ const App = () => {
     queryConsumed.current = true;
 
     try {
-      return Number(query.get('index'));
+      return Number(query.get("index"));
     } catch {
       return 0;
     }
@@ -69,7 +69,7 @@ const App = () => {
           ? selectedPoint.lat - latitudeOffsetFromHeight(window.innerHeight)
           : 47,
         longitude: selectedPoint?.lon ?? 4.7,
-        zoom: 4
+        zoom: 4,
       }}
       mapStyle={nightTheme}
       mapboxAccessToken={accessToken}
@@ -77,18 +77,14 @@ const App = () => {
       onLoad={() =>
         setMapInstance((mapRef.current?.getMap() ?? null) as unknown as MapboxMap | null)
       }
-      projection={{ name: 'globe' }}
+      projection={{ name: "globe" }}
       ref={mapRef}
-      style={{ height: '100vh', width: '100vw' }}
+      style={{ height: "100vh", width: "100vw" }}
     >
-      <PinsLayer
-        map={mapInstance}
-        onSelect={handleSelectPoint}
-        points={points}
-      />
+      <PinsLayer map={mapInstance} onSelect={handleSelectPoint} points={points} />
 
       <CSSTransition
-        classNames={'popup'}
+        classNames={"popup"}
         in={!!selectedPoint && selectedPoint === delayedPoint}
         nodeRef={popupRef}
         timeout={200}
@@ -99,7 +95,7 @@ const App = () => {
             initialSlide={getInitialSlide()}
             onClose={() => {
               selectPoint(null);
-              history.pushState(null, '', '/');
+              history.pushState(null, "", "/");
             }}
             point={safePoint}
             ref={popupRef}
@@ -109,7 +105,7 @@ const App = () => {
         )}
       </CSSTransition>
 
-      <NavigationControl position={'top-left'} />
+      <NavigationControl position={"top-left"} />
     </MapGL>
   );
 };

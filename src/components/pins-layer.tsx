@@ -1,30 +1,30 @@
 import {
+  type CustomLayerInterface,
+  type Map as MapboxMap,
+  type MapMouseEvent,
+  MercatorCoordinate,
+  type ProjectionSpecification,
+} from "mapbox-gl";
+import { useEffect, useRef } from "react";
+import { colors } from "src/core/config/colors";
+import { getColor } from "src/core/utils/dates";
+import {
   Camera,
   Color,
   CylinderGeometry,
   Group,
-  Material,
+  type Material,
   Matrix4,
   Mesh,
-  SRGBColorSpace,
   Scene,
   ShaderMaterial,
   SphereGeometry,
+  SRGBColorSpace,
   Vector3,
   Vector4,
-  WebGLRenderer
-} from 'three';
-import {
-  CustomLayerInterface,
-  type MapMouseEvent,
-  type Map as MapboxMap,
-  MercatorCoordinate,
-  type ProjectionSpecification
-} from 'mapbox-gl';
-import { Point } from 'types/point';
-import { colors } from 'src/core/config/colors';
-import { getColor } from 'src/core/utils/dates';
-import { useEffect, useRef } from 'react';
+  WebGLRenderer,
+} from "three";
+import type { Point } from "types/point";
 
 type Props = {
   map: MapboxMap | null;
@@ -32,7 +32,7 @@ type Props = {
   points: Point[];
 };
 
-const LAYER_ID = 'places-pins-3d';
+const LAYER_ID = "places-pins-3d";
 
 const STEM_HEIGHT = 60;
 const STEM_TOP_RADIUS = 1.2;
@@ -56,13 +56,13 @@ const lngLatToEcef = (lon: number, lat: number) => {
   return new Vector3(
     cosLat * Math.sin(lngRad) * GLOBE_RADIUS,
     -sinLat * GLOBE_RADIUS,
-    cosLat * Math.cos(lngRad) * GLOBE_RADIUS
+    cosLat * Math.cos(lngRad) * GLOBE_RADIUS,
   );
 };
 
 const headHexFor = (point: Point) => {
-  const idx = point.color ?? colors.findIndex(c => c === getColor(point.dates));
-  const raw = colors[idx] ?? '#ffffff';
+  const idx = point.color ?? colors.indexOf(getColor(point.dates));
+  const raw = colors[idx] ?? "#ffffff";
 
   return raw.length >= 7 ? raw.slice(0, 7) : raw;
 };
@@ -164,9 +164,9 @@ const buildPinMaterial = (color: number | string, metallic: boolean, shared: Sha
       baseColor: { value: new Color(color) },
       cameraEcef: shared.cameraEcef,
       metallic: { value: metallic ? 1 : 0 },
-      occlusionEnabled: shared.occlusionEnabled
+      occlusionEnabled: shared.occlusionEnabled,
     },
-    vertexShader: VERTEX_SHADER
+    vertexShader: VERTEX_SHADER,
   });
 
 const buildStemGeometry = () => {
@@ -191,7 +191,7 @@ const buildHeadGeometry = () => {
 // on the globe, 1 in mercator) compensates for the globe camera sitting closer than the
 // mercator camera would at the same zoom.
 const computeMercatorScale = (zoom: number) =>
-  PIN_SCREEN_HEIGHT_PX / (MAPBOX_TILE_PX * Math.pow(2, zoom) * STEM_HEIGHT);
+  PIN_SCREEN_HEIGHT_PX / (MAPBOX_TILE_PX * 2 ** zoom * STEM_HEIGHT);
 
 // Shortest signed distance between two mercator x coordinates (world wraps at x = 1), mirroring
 // the wrap() in mapbox's shader prelude.
@@ -206,10 +206,22 @@ const FAR_EXTEND = 0.1;
 // eslint-disable-next-line capitalized-comments
 // prettier-ignore
 const farExtendMatrix = new Matrix4().set(
-  1, 0, 0, 0,
-  0, 1, 0, 0,
-  0, 0, 2 / (2 + FAR_EXTEND), -FAR_EXTEND / (2 + FAR_EXTEND),
-  0, 0, 0, 1
+  1,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0,
+  0,
+  2 / (2 + FAR_EXTEND),
+  -FAR_EXTEND / (2 + FAR_EXTEND),
+  0,
+  0,
+  0,
+  1,
 );
 
 type PinSlot = {
@@ -240,7 +252,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
 
     const sharedUniforms: SharedUniforms = {
       cameraEcef: { value: new Vector3() },
-      occlusionEnabled: { value: 0 }
+      occlusionEnabled: { value: 0 },
     };
 
     const stemGeometry = buildStemGeometry();
@@ -275,7 +287,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
         group,
         headWorld: new Vector3(),
         mercatorPosition: new Vector3(mc.x, mc.y, mc.z),
-        point
+        point,
       });
     }
 
@@ -296,7 +308,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
           alpha: true,
           antialias: true,
           canvas: map.getCanvas(),
-          context: gl as unknown as WebGLRenderingContext
+          context: gl as unknown as WebGLRenderingContext,
         });
 
         renderer.autoClear = false;
@@ -317,7 +329,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
         projectionToMercatorMatrix?: number[],
         projectionToMercatorTransition?: number,
         centerInMercator?: number[],
-        pixelsPerMeterRatio?: number
+        pixelsPerMeterRatio?: number,
       ) {
         if (!renderer) {
           return;
@@ -441,8 +453,8 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
         renderer.clear(false, true, false);
         renderer.render(scene, camera);
       },
-      renderingMode: '3d',
-      type: 'custom'
+      renderingMode: "3d",
+      type: "custom",
     };
 
     const addLayer = () => {
@@ -453,7 +465,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
 
     // Fires on every style (re)load, not just the first. Mapbox tears custom layers down with
     // the old style, so the layer must be re-added each time.
-    map.on('style.load', addLayer);
+    map.on("style.load", addLayer);
 
     if (map.isStyleLoaded()) {
       addLayer();
@@ -508,16 +520,16 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
     };
 
     const handleMouseMove = (event: MapMouseEvent) => {
-      map.getCanvas().style.cursor = findHit(event.point) ? 'pointer' : '';
+      map.getCanvas().style.cursor = findHit(event.point) ? "pointer" : "";
     };
 
-    map.on('click', handleClick);
-    map.on('mousemove', handleMouseMove);
+    map.on("click", handleClick);
+    map.on("mousemove", handleMouseMove);
 
     return () => {
-      map.off('click', handleClick);
-      map.off('mousemove', handleMouseMove);
-      map.off('style.load', addLayer);
+      map.off("click", handleClick);
+      map.off("mousemove", handleMouseMove);
+      map.off("style.load", addLayer);
 
       if (map.getLayer(LAYER_ID)) {
         map.removeLayer(LAYER_ID);
