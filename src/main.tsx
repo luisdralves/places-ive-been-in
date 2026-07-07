@@ -1,6 +1,7 @@
 import "./index.css";
-import "@fontsource/josefin-sans/300-italic.css";
-import "@fontsource/josefin-sans/300.css";
+import "@fontsource/josefin-sans/400.css";
+import "@fontsource/josefin-sans/600.css";
+import "@fontsource/josefin-sans/700.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import React from "react";
 import ReactDOM from "react-dom/client";

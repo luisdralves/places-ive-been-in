@@ -3,6 +3,10 @@ body {
   margin: 0;
 }
 
+button {
+  font-family: inherit;
+}
+
 .mapboxgl-map {
   font:
     12px / 20px "Josefin Sans",
