@@ -1,109 +1,100 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
-import { formatMonth, getColor } from "src/core/utils/dates";
-import { prop } from "styled-tools";
+import { getColor, summarizeDates } from "src/core/utils/dates";
 
 type Props = {
   dates: [string, string?][];
+  marker?: string;
 };
 
 const Wrapper = styled.div`
-  padding: 4px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+`;
 
-  & > div:first-child {
-    display: flex;
-    justify-content: space-between;
-    padding: 2px 8px;
-  }
-
-  & > div:last-child {
-    padding: 2px 12px;
-  }
+const Summary = styled.div`
+  font-size: 13px;
+  text-align: center;
 `;
 
 const Track = styled.div`
-  border-radius: 8px;
-  height: 8px;
-  border: solid 1px black;
-  background-color: #0008;
+  background-color: #ffffff1a;
+  border-radius: 5px;
+  height: 10px;
   position: relative;
 `;
 
-const Timespan = styled.div<{ color: string; left: number; right: number }>`
-  border-radius: 8px;
-  height: 8px;
-  background-color: ${prop("color")};
+const Segment = styled.div`
+  border-radius: 5px;
+  bottom: 0;
+  min-width: 4px;
   position: absolute;
-  left: ${prop("left")}%;
-  right: ${prop("right")}%;
-  min-width: 8px;
-
-  & > div {
-    background-color: #000000aa;
-    border: solid 2px black;
-    border-radius: 16px;
-    position: absolute;
-    padding: 0 8px;
-    bottom: 12px;
-    left: 50%;
-    opacity: 0;
-    transform: translateX(-50%);
-    transition: opacity 200ms ease-in-out;
-    white-space: nowrap;
-  }
-
-  &:hover > div {
-    opacity: 1;
-  }
+  top: 0;
 `;
 
-export const Timeline = ({ dates }: Props) => {
-  const { color, firstDate, lastDate, total } = useMemo(() => {
-    const firstDate = new Date(dates[0][0]);
-    const lastDate = new Date(dates.slice(-1)[0][1] ?? dates.slice(-1)[0][0]);
+const Marker = styled.div`
+  background-color: #ffffff;
+  border-radius: 1px;
+  bottom: -3px;
+  box-shadow: 0 0 0 1px #0009;
+  pointer-events: none;
+  position: absolute;
+  top: -3px;
+  transform: translateX(-50%);
+  transition: left 200ms ease;
+  width: 2px;
+`;
 
-    const total = lastDate.getTime() - firstDate.getTime();
-    const monthsMargin = Math.floor(total / (2 * 30 * 24 * 60 * 60 * 1000));
+const Axis = styled.div`
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  opacity: 0.6;
+`;
 
-    firstDate.setMonth(firstDate.getMonth() - monthsMargin);
-    firstDate.setDate(1);
-    lastDate.setMonth(lastDate.getMonth() + 1 + monthsMargin);
-    lastDate.setDate(1);
+export const Timeline = ({ dates, marker }: Props) => {
+  const summary = useMemo(() => summarizeDates(dates), [dates]);
 
-    return {
-      color: getColor(dates),
-      firstDate,
-      lastDate,
-      total: lastDate.getTime() - firstDate.getTime(),
-    };
-  }, [dates]);
+  if (!summary) {
+    return null;
+  }
+
+  const color = getColor(dates);
+  const markerTime = marker ? new Date(marker).getTime() : Number.NaN;
+  const markerPosition =
+    markerTime >= summary.start && markerTime <= summary.end
+      ? (markerTime - summary.start) / (summary.end - summary.start)
+      : null;
 
   return (
     <Wrapper>
-      <div>
-        <span>{formatMonth(firstDate)}</span>
+      <Summary>{summary.header}</Summary>
 
-        <span>{formatMonth(lastDate)}</span>
-      </div>
+      <Track>
+        {summary.segments.map(({ label, left, width }) => (
+          // biome-ignore lint/correctness/useJsxKeyInIterable: segments are a fixed per-place list and never reorder.
+          <Segment
+            style={{
+              backgroundColor: color,
+              left: `${left * 100}%`,
+              width: `${width * 100}%`,
+            }}
+            title={label}
+          />
+        ))}
 
-      <div>
-        <Track>
-          {dates.map(([start, end]) => (
-            <Timespan
-              key={`${start}-${end ?? ""}`}
-              color={color}
-              left={(100 * (new Date(start).getTime() - firstDate.getTime())) / total}
-              right={
-                (100 *
-                  (lastDate.getTime() - new Date(end ?? start).getTime() + 24 * 60 * 60 * 1000)) /
-                total
-              }
-            >
-              <div>{`${start}${end ? ` -> ${end}` : ""}`}</div>
-            </Timespan>
-          ))}
-        </Track>
-      </div>
+        {markerPosition !== null && <Marker style={{ left: `${markerPosition * 100}%` }} />}
+      </Track>
+
+      {summary.startLabel !== summary.endLabel && (
+        <Axis>
+          <span>{summary.startLabel}</span>
+
+          <span>{summary.endLabel}</span>
+        </Axis>
+      )}
     </Wrapper>
   );
 };

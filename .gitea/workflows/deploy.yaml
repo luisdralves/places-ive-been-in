@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies (system)
         run: |
           apt-get update
-          apt-get install -y imagemagick nodejs
+          apt-get install -y imagemagick libimage-exiftool-perl nodejs
 
       - uses: actions/checkout@v4
 

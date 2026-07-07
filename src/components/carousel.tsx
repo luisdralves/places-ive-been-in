@@ -1,11 +1,14 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useRef, useState } from "react";
+import ChevronLeft from "src/assets/icons/chevron-left.svg?react";
+import ChevronRight from "src/assets/icons/chevron-right.svg?react";
 
 type Props = {
   autoplay?: boolean;
   autoplaySpeed?: number;
   children: React.ReactNode[];
   initialSlide?: number;
+  onIndexChange?: (index: number) => void;
 };
 
 const CarouselContainer = styled.div`
@@ -38,20 +41,27 @@ const Slide = styled.div`
 `;
 
 const NavButton = styled.button`
+  align-items: center;
   appearance: none;
   background-color: rgba(0, 0, 0, 0.5);
   border: none;
   border-radius: 50%;
   color: white;
   cursor: pointer;
-  font-size: 20px;
+  display: flex;
   height: 40px;
+  justify-content: center;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   transition: background-color 200ms ease, opacity 200ms ease;
   width: 40px;
   z-index: 1;
+
+  svg {
+    height: 20px;
+    width: 20px;
+  }
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.75);
@@ -126,6 +136,7 @@ export function Carousel({
   autoplaySpeed = 5000,
   children,
   initialSlide = 0,
+  onIndexChange,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialSlide);
@@ -139,6 +150,10 @@ export function Carousel({
   }, [currentIndex]);
 
   useEffect(() => {
+    onIndexChange?.(currentIndex);
+  }, [currentIndex, onIndexChange]);
+
+  useEffect(() => {
     slideCountRef.current = children.length;
   }, [children.length]);
 
@@ -147,8 +162,9 @@ export function Carousel({
 
     const targetIndex = Math.max(0, Math.min(index, slideCountRef.current - 1));
     const slideWidth = scrollRef.current.offsetWidth;
+    // Let the scroll handler own currentIndex; writing it here too makes it bounce
+    // between old and new as the smooth scroll animates through intermediate slides.
     scrollRef.current.scrollLeft = targetIndex * slideWidth;
-    setCurrentIndex(targetIndex);
   }, []);
 
   const goToNext = useCallback(() => {
@@ -172,6 +188,8 @@ export function Carousel({
 
     const handleScroll = () => {
       const slideWidth = scrollContainer.offsetWidth;
+      if (!slideWidth) return;
+
       const newIndex = Math.round(scrollContainer.scrollLeft / slideWidth);
       setCurrentIndex(newIndex);
     };
@@ -219,47 +237,62 @@ export function Carousel({
   }, [goToNext, goToPrev, scrollToIndex]);
 
   // Autoplay functionality
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentIndex is a deliberate re-run trigger, not read in the body.
   useEffect(() => {
     if (!autoplay) return;
 
-    const startAutoplay = () => {
-      autoplayTimerRef.current = window.setTimeout(() => {
-        goToNext();
-      }, autoplaySpeed);
-    };
-
-    startAutoplay();
+    autoplayTimerRef.current = window.setTimeout(goToNext, autoplaySpeed);
 
     return () => {
       if (autoplayTimerRef.current) {
         clearTimeout(autoplayTimerRef.current);
       }
     };
-  }, [autoplay, autoplaySpeed, goToNext]);
+  }, [autoplay, autoplaySpeed, currentIndex, goToNext]);
 
-  // Scroll to initial slide
+  // Open on the initial slide
   useEffect(() => {
-    scrollToIndex(initialSlide);
-  }, [initialSlide, scrollToIndex]);
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    let frame = 0;
+
+    const apply = () => {
+      const slideWidth = scrollContainer.offsetWidth;
+      if (!slideWidth) {
+        frame = requestAnimationFrame(apply);
+        return;
+      }
+
+      const target = Math.max(0, Math.min(initialSlide, slideCountRef.current - 1));
+      scrollContainer.scrollTo({ left: target * slideWidth, behavior: "instant" });
+    };
+
+    apply();
+
+    return () => cancelAnimationFrame(frame);
+  }, [initialSlide]);
 
   return (
     <CarouselContainer>
       <ScrollContainer aria-label={"Image carousel"} ref={scrollRef} role={"region"} tabIndex={0}>
         {children.map((child) => (
+          // biome-ignore lint/correctness/useJsxKeyInIterable: slides are a fixed per-place list and never reorder.
           <Slide>{child}</Slide>
         ))}
       </ScrollContainer>
 
       <PrevButton aria-label={"Previous slide"} onClick={goToPrev} type={"button"}>
-        {"‹"}
+        <ChevronLeft />
       </PrevButton>
 
       <NextButton aria-label={"Next slide"} onClick={goToNext} type={"button"}>
-        {"›"}
+        <ChevronRight />
       </NextButton>
 
       <DotsContainer>
         {children.map((_, index) => (
+          // biome-ignore lint/correctness/useJsxKeyInIterable: dots mirror the fixed per-place slide list and never reorder.
           <Dot
             active={index === currentIndex}
             aria-current={index === currentIndex ? "true" : "false"}

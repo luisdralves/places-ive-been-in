@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { Popup as BasePopup } from "react-map-gl";
+import CloseIcon from "src/assets/icons/close.svg?react";
 import { colors } from "src/core/config/colors";
 import imagePaths from "src/core/config/image-paths.json";
 import { useDelayedState } from "src/core/hooks/use-delayed-state";
@@ -11,7 +12,7 @@ import { Timeline } from "./timeline";
 type Props = {
   initialSlide?: number;
   onClose?: () => void;
-  point: Point;
+  place: [string, Point];
 };
 
 const Popup = styled(BasePopup)`
@@ -82,6 +83,17 @@ const Image = styled.img`
   width: 360px;
 `;
 
+const EmptyState = styled.div`
+  align-items: center;
+  display: flex;
+  font-size: 14px;
+  justify-content: center;
+  min-height: 120px;
+  opacity: 0.7;
+  padding: 24px;
+  text-align: center;
+`;
+
 const Name = styled.h3`
   margin: 0;
   padding: 12px 0;
@@ -90,22 +102,41 @@ const Name = styled.h3`
 `;
 
 const CloseButton = styled.button`
+  align-items: center;
   appearance: none;
   background: none;
   border: none;
-  bottom: 4px;
+  bottom: 0;
+  color: inherit;
   cursor: pointer;
-  font-size: 32px;
+  display: flex;
+  justify-content: center;
   outline: none;
   position: absolute;
   right: 4px;
   top: 0;
+  width: 44px;
+
+  svg {
+    height: 24px;
+    width: 24px;
+  }
 `;
 
 export const CustomPopup = forwardRef<HTMLDivElement, Props>(
-  ({ initialSlide, onClose, point }, ref) => {
-    const imagesKey = point && (point.name as keyof typeof imagePaths);
+  ({ initialSlide, onClose, place }, ref) => {
+    const [name, point] = place;
+    const imagesKey = name as keyof typeof imagePaths;
     const delayedImagesKey = useDelayedState(imagesKey, { delay: 100 });
+    const images = imagePaths[imagesKey];
+    const isEmpty = !point.dates?.length && !images?.length;
+
+    const [slide, setSlide] = useState(initialSlide ?? 0);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: imagesKey resets the slide when the popup switches places.
+    useEffect(() => {
+      setSlide(initialSlide ?? 0);
+    }, [imagesKey, initialSlide]);
 
     return (
       <Popup
@@ -119,31 +150,40 @@ export const CustomPopup = forwardRef<HTMLDivElement, Props>(
       >
         <Content ref={ref}>
           <Name>
-            {point?.name}
+            {name}
 
-            <CloseButton onClick={onClose}>{"\u00d7"}</CloseButton>
+            <CloseButton aria-label={"Close"} onClick={onClose}>
+              <CloseIcon />
+            </CloseButton>
           </Name>
 
-          {point?.dates && <Timeline dates={point.dates} />}
+          {point.dates && <Timeline dates={point.dates} marker={images?.[slide]?.date} />}
 
-          {imagesKey && imagePaths[imagesKey] && (
+          {images && (
             <CarouselWrapper>
               {delayedImagesKey === imagesKey && (
-                <Carousel autoplay autoplaySpeed={5000} initialSlide={initialSlide}>
-                  {imagePaths[imagesKey].map((image) => (
+                <Carousel
+                  autoplay
+                  autoplaySpeed={5000}
+                  initialSlide={initialSlide}
+                  onIndexChange={setSlide}
+                >
+                  {images.map((image) => (
                     <a
-                      href={`/images/${point.name}/${image.original}`}
+                      href={`/images/${name}/${image.original}`}
                       key={image.thumbnail}
                       rel={"noreferrer"}
                       target={"_blank"}
                     >
-                      <Image src={`/thumbnails/${point.name}/${image.thumbnail}`} />
+                      <Image src={`/thumbnails/${name}/${image.thumbnail}`} />
                     </a>
                   ))}
                 </Carousel>
               )}
             </CarouselWrapper>
           )}
+
+          {isEmpty && <EmptyState>{"Too many to keep track of"}</EmptyState>}
         </Content>
       </Popup>
     );

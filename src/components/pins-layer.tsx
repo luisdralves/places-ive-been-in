@@ -28,8 +28,8 @@ import type { Point } from "types/point";
 
 type Props = {
   map: MapboxMap | null;
-  onSelect: (point: Point) => void;
-  points: Point[];
+  onSelect: (entry: [string, Point]) => void;
+  points: Map<string, Point>;
 };
 
 const LAYER_ID = "places-pins-3d";
@@ -232,7 +232,7 @@ type PinSlot = {
   // head as drawn.
   headWorld: Vector3;
   mercatorPosition: Vector3;
-  point: Point;
+  entry: [string, Point];
 };
 
 export const PinsLayer = ({ map, onSelect, points }: Props) => {
@@ -261,8 +261,9 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
 
     const slots: PinSlot[] = [];
 
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
+    let i = 0;
+    for (const entry of points) {
+      const [, point] = entry;
       const headMaterial = buildPinMaterial(headHexFor(point), false, sharedUniforms);
       // Heads skip depth testing, so they always paint over every stem and, in renderOrder, over
       // each other: the later-indexed head wins any overlap. Back-face culling keeps each sphere
@@ -276,7 +277,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
       // Three.js does not propagate renderOrder from parent groups, so it must be set on each
       // mesh individually.
       stem.renderOrder = i;
-      head.renderOrder = points.length + i;
+      head.renderOrder = points.size + i;
       const group = new Group();
       group.add(stem);
       group.add(head);
@@ -287,8 +288,9 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
         group,
         headWorld: new Vector3(),
         mercatorPosition: new Vector3(mc.x, mc.y, mc.z),
-        point,
+        entry,
       });
+      i++;
     }
 
     const lookTarget = new Vector3();
@@ -477,7 +479,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
       const canvas = map.getCanvas();
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      let nearest: Point | null = null;
+      let nearest: [string, Point] | null = null;
       let nearestDist = HIT_RADIUS_PX;
 
       for (const slot of slots) {
@@ -504,7 +506,7 @@ export const PinsLayer = ({ map, onSelect, points }: Props) => {
 
         if (d < nearestDist) {
           nearestDist = d;
-          nearest = slot.point;
+          nearest = slot.entry;
         }
       }
 

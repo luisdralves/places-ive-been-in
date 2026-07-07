@@ -3,5 +3,6 @@ export type Point = {
   dates?: [string, string?][];
   lat: number;
   lon: number;
-  name: string;
 };
+
+export type Points = Map<string, Point>;

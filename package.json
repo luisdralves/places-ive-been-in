@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "build-image-paths": "node bin/build-image-paths.js",
+    "check-dates": "bun bin/check-image-dates.ts",
     "optimize-images": "bash bin/optimize-images.sh",
     "optimize-images:clean": "rm -r ./public/thumbnails && bun optimize-images",
     "dev": "vite",
-    "prebuild": "bun optimize-images && bun build-image-paths",
+    "prebuild": "bun optimize-images && bun build-image-paths && bun check-dates",
     "build": "tsc && vite build",
     "lint": "biome check",
     "format": "biome format --write",
@@ -27,12 +28,11 @@
     "react-transition-group": "^4.4.5",
     "styled-tools": "^1.7.2",
     "three": "^0.170.0",
-    "vite-plugin-svgr": "^2.4.0"
+    "vite-plugin-svgr": "^4.5.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
     "@types/mapbox-gl": "^3.4.0",
-    "@types/node": "^18.16.2",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-transition-group": "^4.4.5",
