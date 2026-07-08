@@ -2,7 +2,7 @@
 
 A react app to keep track of places I've been in
 
-![Preview](https://github.com/luisdralves/places-ive-been-in/assets/22676183/ac9a571b-d270-4db5-a765-a650de35eace)
+<img width="2400" height="1600" alt="places-ive-been-in luisdralves dev__place=Amsterdam" src="https://github.com/user-attachments/assets/3107e552-aab2-44aa-92a4-281141ba176f" />
 
 ### Usage
 
