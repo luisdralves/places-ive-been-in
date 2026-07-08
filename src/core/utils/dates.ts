@@ -1,4 +1,5 @@
 import { colors } from "src/core/config/colors";
+import imagePaths from "src/core/config/image-paths.json";
 import type { Point } from "types/point";
 
 type Precision = "year" | "month" | "day";
@@ -171,6 +172,13 @@ export type Visit = {
   point: Point;
   start: number;
   year: number;
+};
+
+export const firstPhotoIndex = (name: string, start: number): number => {
+  const images = imagePaths[name as keyof typeof imagePaths];
+  const index = images?.findIndex((image) => new Date(image.date).getTime() >= start) ?? -1;
+
+  return index === -1 ? 0 : index;
 };
 
 export const flattenVisits = (entries: Iterable<[string, Point]>): Visit[] => {

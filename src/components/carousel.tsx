@@ -250,7 +250,8 @@ export function Carousel({
     };
   }, [autoplay, autoplaySpeed, currentIndex, goToNext]);
 
-  // Open on the initial slide
+  // Position instantly on mount, animate when only the slide changes 
+  const hasPositioned = useRef(false);
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
@@ -265,7 +266,11 @@ export function Carousel({
       }
 
       const target = Math.max(0, Math.min(initialSlide, slideCountRef.current - 1));
-      scrollContainer.scrollTo({ left: target * slideWidth, behavior: "instant" });
+      scrollContainer.scrollTo({
+        left: target * slideWidth,
+        behavior: hasPositioned.current ? "smooth" : "instant",
+      });
+      hasPositioned.current = true;
     };
 
     apply();

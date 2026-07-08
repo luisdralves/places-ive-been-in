@@ -3,11 +3,11 @@ import { useMemo, useState } from "react";
 import CalendarIcon from "src/assets/icons/calendar.svg?react";
 import CloseIcon from "src/assets/icons/close.svg?react";
 import { colors } from "src/core/config/colors";
-import { flattenVisits } from "src/core/utils/dates";
+import { firstPhotoIndex, flattenVisits, type Visit } from "src/core/utils/dates";
 import type { Point } from "types/point";
 
 type Props = {
-  onSelect: (entry: [string, Point]) => void;
+  onSelect: (entry: [string, Point], index?: number) => void;
   points: Map<string, Point>;
   selectedPoint: [string, Point] | null;
 };
@@ -129,8 +129,8 @@ export const VisitsDrawer = ({ onSelect, points, selectedPoint }: Props) => {
   const [open, setOpen] = useState(false);
   const [selectedName] = selectedPoint ?? [];
 
-  const handleSelect = (entry: [string, Point]) => {
-    onSelect(entry);
+  const handleSelect = (visit: Visit) => {
+    onSelect([visit.name, visit.point], firstPhotoIndex(visit.name, visit.start));
 
     if (window.matchMedia(MOBILE).matches) {
       setOpen(false);
@@ -146,7 +146,9 @@ export const VisitsDrawer = ({ onSelect, points, selectedPoint }: Props) => {
       byYear.set(visit.year, bucket);
     }
 
-    return [...byYear.entries()];
+    return [...byYear.entries()]
+      .sort(([a], [b]) => b - a)
+      .map(([year, visits]) => [year, [...visits].reverse()] as const);
   }, [points]);
 
   return (
@@ -172,7 +174,7 @@ export const VisitsDrawer = ({ onSelect, points, selectedPoint }: Props) => {
                 <Row
                   active={visit.name === selectedName}
                   key={`${visit.name}-${visit.start}`}
-                  onClick={() => handleSelect([visit.name, visit.point])}
+                  onClick={() => handleSelect(visit)}
                   type={"button"}
                 >
                   <Dot style={{ backgroundColor: visit.color }} />

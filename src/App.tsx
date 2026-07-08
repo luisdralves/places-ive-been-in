@@ -17,7 +17,7 @@ const nightTheme = import.meta.env.VITE_MAPBOX_NIGHT;
 const App = () => {
   const query = new URLSearchParams(window.location.search);
   const place = query.get("place");
-  const deepLink = useRef(place ? { place, index: Number(query.get("index")) || 0 } : null);
+  const deepLink = place ? { place, index: Number(query.get("index")) || 0 } : null;
   const mapRef = useRef<MapRef | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [mapInstance, setMapInstance] = useState<MapboxMap | null>(null);
@@ -29,6 +29,7 @@ const App = () => {
   const delayedPoint = useDelayedState(selectedPoint, { delay: 200 });
   const safePoint = delayedPoint ?? selectedPoint;
   const [, selectedData] = selectedPoint ?? [];
+  const [slide, setSlide] = useState(deepLink?.index ?? 0);
 
   const getVerticalOffset = useCallback(() => {
     if (!mapRef.current) {
@@ -41,9 +42,15 @@ const App = () => {
   }, []);
 
   const handleSelectPoint = useCallback(
-    (entry: [string, Point]) => {
+    (entry: [string, Point], index = 0) => {
       const [name, point] = entry;
-      deepLink.current = null;
+      setSlide(index);
+
+      // Same place already open, keep the reference
+      if (selectedPoint?.[0] === name) {
+        return;
+      }
+
       selectPoint(entry);
       history.pushState(null, "", `?place=${name}`);
       mapRef.current?.easeTo?.({
@@ -51,7 +58,7 @@ const App = () => {
         duration: 500,
       });
     },
-    [getVerticalOffset],
+    [getVerticalOffset, selectedPoint],
   );
 
   return (
@@ -86,7 +93,7 @@ const App = () => {
       >
         {safePoint ? (
           <CustomPopup
-            initialSlide={deepLink.current?.place === safePoint[0] ? deepLink.current.index : 0}
+            initialSlide={slide}
             onClose={() => {
               selectPoint(null);
               history.pushState(null, "", "/");
